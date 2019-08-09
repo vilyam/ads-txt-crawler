@@ -4,7 +4,7 @@ Implemented specification: https://iabtechlab.com/~iabtec5/wp-content/uploads/20
 
 Application deployed to Heroku: https://ads-txt-crawler.herokuapp.com/
 
-examples:
-https://ads-txt-crawler.herokuapp.com/ads/cnn
-https://ads-txt-crawler.herokuapp.com/ads/wordress
-https://ads-txt-crawler.herokuapp.com/ads/nytimes
+examples: <br/>
+https://ads-txt-crawler.herokuapp.com/ads/cnn <br/>
+https://ads-txt-crawler.herokuapp.com/ads/wordress  <br/>
+https://ads-txt-crawler.herokuapp.com/ads/nytimes  <br/>
