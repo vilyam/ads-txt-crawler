@@ -1,4 +1,4 @@
-name := "ads-crawler"
+name := "ads-txt-crawler"
 
 version := "0.1"
 
@@ -26,6 +26,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 )
 
-herokuAppName in Compile := "ads-crawler"
+herokuAppName in Compile := "ads-txt-crawler"
 
 enablePlugins(JavaServerAppPackaging)
