@@ -2,7 +2,7 @@ package com.viliamov.adscrawler.service
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
@@ -27,6 +27,8 @@ class CrawlerService @Inject()(implicit
   val adsFilePath = Uri.Path.apply("/ads.txt")
   val duration = Duration(config.getInt("crawler.interval"), TimeUnit.MINUTES)
 
+  val actor: ActorRef = akka.actorOf(Props[UriCallActor], name = "uri-call")
+
   akka.scheduler.schedule(Duration.Zero, duration, new Runnable {
     override def run(): Unit = doCrawling()
   })
@@ -41,7 +43,6 @@ class CrawlerService @Inject()(implicit
       .map(Uri.apply)
       .map(_.withPath(adsFilePath))
 
-    val actor = akka.actorOf(Props[UriCallActor], name = "uri-call")
     fileUris.foreach(uri => actor ! StartCrawlingMessage(getPublisherName(uri), uri))
   }
 

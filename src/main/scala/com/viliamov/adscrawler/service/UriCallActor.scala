@@ -52,8 +52,10 @@ class UriCallActor extends Actor with ActorLogging {
   }
 
   def processResult(publisherName: String, res: String): Unit = {
-    val message = ParseAdMessage(publisherName, res)
-    val child = context.actorOf(Props[AdRecordParserActor], name = s"$publisherName-parser")
-    child ! message
+    val name = s"$publisherName-parser"
+
+    context.child(name)
+      .getOrElse(context.actorOf(Props[AdRecordParserActor], name = name))
+      .tell(ParseAdMessage(publisherName, res), self)
   }
 }
