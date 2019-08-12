@@ -6,7 +6,7 @@ import javax.inject.Singleton
 import scala.collection.mutable
 
 @Singleton
-class AdsDaoInMemoryImpl extends AdsDao {
+object AdsRepositoryInMemory extends AdsRepository {
   private val map: mutable.HashMap[String, Seq[AdRecord]] = mutable.HashMap[String, Seq[AdRecord]]()
 
   override def search(publisherName: String): Seq[AdRecord] = {

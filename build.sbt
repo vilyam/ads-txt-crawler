@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
 
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+  "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
 
   "com.google.inject" % "guice" % "4.2.2",

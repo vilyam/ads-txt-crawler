@@ -2,7 +2,7 @@ package com.viliamov.adscrawler.dao
 
 import com.viliamov.adscrawler.model.AdRecord
 
-trait AdsDao {
+trait AdsRepository {
   def search(publisherName: String): Seq[AdRecord]
 
   def get(publisherName: String): Seq[AdRecord]

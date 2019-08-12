@@ -1,11 +1,17 @@
 package com.viliamov.adscrawler.service
 
-import com.typesafe.scalalogging.LazyLogging
+import akka.actor.{Actor, ActorLogging}
+import com.viliamov.adscrawler.dao.AdsRepositoryInMemory
+import com.viliamov.adscrawler.message.ParseAdMessage
 import com.viliamov.adscrawler.model.{AccountType, AdRecord}
-import javax.inject.{Inject, Singleton}
 
-@Singleton
-class AdRecordParserService @Inject()(validationService: AdRecordValidationService) extends LazyLogging {
+class AdRecordParserActor extends Actor with ActorLogging {
+
+  override def receive: Receive = {
+    case ParseAdMessage(name, raw) =>
+      val res: Seq[AdRecord] = process(name, raw)
+      AdsRepositoryInMemory.put(name, res)
+  }
 
   def process(publisherName: String, raw: String): Seq[AdRecord] = {
     val (lefts, rights) = prepare(raw).iterator
@@ -13,9 +19,9 @@ class AdRecordParserService @Inject()(validationService: AdRecordValidationServi
       .toList
       .partitionMap(identity)
 
-    lefts.foreach(line => logger.debug(s"$publisherName: $line"))
+    lefts.foreach(line => log.debug(s"$publisherName: $line"))
 
-    logger.info(s"$publisherName: parsed ${rights.length} records with ${lefts.length} errors")
+    log.info(s"$publisherName: parsed ${rights.length} records with ${lefts.length} errors")
 
     rights
   }
@@ -52,7 +58,7 @@ class AdRecordParserService @Inject()(validationService: AdRecordValidationServi
       println(accountType)
     }
 
-    val validationResult = validationService.validate(domainVal, accountIdVal, accountTypeVal, authorityIdVal)
+    val validationResult = AdRecordValidationService.validate(domainVal, accountIdVal, accountTypeVal, authorityIdVal)
 
     if (validationResult.isEmpty) {
       Right(AdRecord(domainVal, accountIdVal, accountTypeVal.get, authorityIdVal))

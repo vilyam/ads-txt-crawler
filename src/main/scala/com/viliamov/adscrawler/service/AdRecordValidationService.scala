@@ -1,14 +1,12 @@
 package com.viliamov.adscrawler.service
 
 import com.viliamov.adscrawler.model.AccountType.AccountType
-import com.viliamov.adscrawler.model.{AccountType, AdRecord}
-import javax.inject.Singleton
+import com.viliamov.adscrawler.model.AdRecord
 import org.apache.commons.validator.routines.DomainValidator
 
 import scala.collection.mutable
 
-@Singleton
-class AdRecordValidationService {
+object AdRecordValidationService {
   private final val ERROR_NOT_VALID_CHARS: String = "%s '%s' contains not allowed characters"
   private final val ERROR_NOT_VALID_VALUE: String = "%s '%s' is not valid"
   private final val ERROR_IS_REQUIRED: String = "%s is required"
