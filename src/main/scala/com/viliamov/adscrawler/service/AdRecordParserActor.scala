@@ -7,7 +7,7 @@ import com.viliamov.adscrawler.model.{AccountType, AdRecord}
 case class ParseAdCommand(publisherName: String, raw: String)
 
 object AdRecordParserActor {
-  val props: Props = Props[AdRecordParserActor]
+  val props: Props = Props[AdRecordParserActor].withDispatcher("parser-dispatcher")
 }
 
 class AdRecordParserActor extends Actor with ActorLogging {

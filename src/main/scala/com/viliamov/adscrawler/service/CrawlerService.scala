@@ -8,55 +8,48 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject.Inject
-import org.apache.commons.validator.routines.UrlValidator
 
 import scala.collection.parallel.ParSeq
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.Duration
 
 class CrawlerService @Inject()(implicit
                                config: Config,
+                               uriSourceService: UrlSourceService,
                                akka: ActorSystem,
                                materializer: ActorMaterializer) extends LazyLogging {
 
   implicit val executor: ExecutionContext = akka.dispatcher
 
-  private val urlValidator = UrlValidator.getInstance()
-  val adsFilePath = Uri.Path.apply("/ads.txt")
-  val duration = Duration(config.getInt("crawler.interval"), TimeUnit.MINUTES)
+  init()
 
-  val domains: Seq[String] = config
-    .getStringList("crawler.list")
-    .asScala.toSeq
+  def init(): Unit = {
+    val duration = Duration(config.getInt("crawler.interval"), TimeUnit.MINUTES)
 
-  val fileUris: Seq[Uri] = domains
-    .filter(urlValidator.isValid)
-    .map(Uri.apply)
-    .map(_.withPath(adsFilePath))
+    akka.scheduler.schedule(Duration.Zero, duration, new Runnable {
+      override def run(): Unit = doCrawling()
+    })
 
-  akka.scheduler.schedule(Duration.Zero, duration, new Runnable {
-    override def run(): Unit = doCrawling()
-  })
-
-  logger.info(s"Started. Scheduler interval is $duration")
+    logger.info(s"Started. Scheduler interval is $duration")
+  }
 
   def doCrawling(): Unit = {
-    ParSeq(fileUris)
+    ParSeq(uriSourceService.getUris)
       .foreach(seq =>
         seq.foreach(uri => {
-          getOrCreateUriCallActor(uri)
-            .foreach(actor => actor ! StartCrawlingCommand(getPublisherName(uri), uri))
+          val message = StartCrawlingCommand(getPublisherName(uri), uri)
+
+          getOrCreateUriCallActor(uri).foreach(actor => actor ! message)
         }))
   }
 
   def getOrCreateUriCallActor(uri: Uri): Future[ActorRef] = {
-    val name = s"${uri.authority.host}-call"
+    val name = s"${uri.authority.host}-caller"
 
     akka.actorSelection(s"user/$name")
       .resolveOne(Duration(1, TimeUnit.SECONDS))
       .recover { case _: Exception =>
-        akka.actorOf(UriCallActor.props.withDispatcher("uri-call-dispatcher"), name)
+        akka.actorOf(UriCallActor.props, name)
       }
   }
 

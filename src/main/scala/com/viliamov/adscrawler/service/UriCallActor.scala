@@ -14,12 +14,12 @@ import scala.util.{Failure, Success}
 case class StartCrawlingCommand(publisherName: String, uri: Uri)
 
 object UriCallActor {
-  val props: Props = Props[UriCallActor]
+  val props: Props = Props[UriCallActor].withDispatcher("uri-call-dispatcher")
 }
 
 class UriCallActor extends Actor with ActorLogging {
   final implicit val system: ActorSystem = context.system
-  final implicit val executor: ExecutionContext = context.dispatcher
+  final implicit val executor: ExecutionContext = context.system.dispatchers.lookup("uri-call-dispatcher")
   final implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(context.system))
 
   val http: HttpExt = Http(context.system)
@@ -32,7 +32,7 @@ class UriCallActor extends Actor with ActorLogging {
     val request = HttpRequest(uri = uri)
     log.info(s"Make Http call to $uri")
 
-    Http()
+    http
       .singleRequest(request)
       .onComplete {
         case Success(res) => res match {
@@ -60,7 +60,7 @@ class UriCallActor extends Actor with ActorLogging {
     val name = s"parser"
 
     context
-      .child(name).getOrElse(context.actorOf(AdRecordParserActor.props.withDispatcher("parser-dispatcher"), name))
+      .child(name).getOrElse(context.actorOf(AdRecordParserActor.props, name))
       .tell(ParseAdCommand(publisherName, res), self)
   }
 }
