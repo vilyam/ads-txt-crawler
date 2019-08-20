@@ -1,8 +1,9 @@
-package com.viliamov.adscrawler.service
+package com.viliamov.adscrawler.actor
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.viliamov.adscrawler.dao.AdsRedisRepository
 import com.viliamov.adscrawler.model.{AccountType, AdRecord}
+import com.viliamov.adscrawler.service.AdRecordValidationService
 
 case class ParseAdCommand(publisherName: String, raw: String)
 
@@ -36,7 +37,7 @@ class AdRecordParserActor extends Actor with ActorLogging {
     rights
   }
 
-  private[service] def prepare(raw: String): Seq[String] = {
+  private def prepare(raw: String): Seq[String] = {
     raw
       .split("\n")
       .map(line => if (line.contains("#")) line.substring(0, line.indexOf("#")) else line)
@@ -44,7 +45,7 @@ class AdRecordParserActor extends Actor with ActorLogging {
       .filter(_.nonEmpty)
   }
 
-  private[service] def parseLine(line: String): Either[String, AdRecord] = {
+  private def parseLine(line: String): Either[String, AdRecord] = {
     line match {
       case s"$domain,$publisherId,$typeAcc,$authorityId" => construct(domain, publisherId, typeAcc, Some(authorityId))
 
@@ -54,7 +55,7 @@ class AdRecordParserActor extends Actor with ActorLogging {
     }
   }
 
-  private[service] def construct(domain: String,
+  private def construct(domain: String,
                                  accountId: String,
                                  accountType: String,
                                  authorityId: Option[String] = None

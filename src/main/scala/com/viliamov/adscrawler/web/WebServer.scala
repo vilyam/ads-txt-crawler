@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
@@ -23,7 +24,7 @@ class WebServer @Inject()(implicit config: Config,
   private val host = config.getString("http.host")
   private val port = config.getInt("http.port")
 
-  def route = concat(
+  def route: Route = concat(
     pathPrefix("ads") {
       concat(
         path(Remaining) { str =>

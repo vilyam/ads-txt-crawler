@@ -1,4 +1,4 @@
-package com.viliamov.adscrawler.service
+package com.viliamov.adscrawler.actor
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.http.scaladsl.{Http, HttpExt}

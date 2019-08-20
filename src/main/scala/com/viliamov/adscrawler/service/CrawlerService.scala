@@ -7,6 +7,7 @@ import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
+import com.viliamov.adscrawler.actor.{StartCrawlingCommand, UriCallActor}
 import javax.inject.Inject
 
 import scala.collection.parallel.ParSeq
