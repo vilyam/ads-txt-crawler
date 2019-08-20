@@ -7,8 +7,8 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import com.viliamov.adscrawler.dao.AdsRepositoryInMemory
-import com.viliamov.adscrawler.model.AdRecordWrites
+import com.viliamov.adscrawler.dao.AdsRedisRepository
+import com.viliamov.adscrawler.model.AdRecordFormat._
 import javax.inject.Inject
 import play.api.libs.json.Json
 
@@ -19,7 +19,6 @@ class WebServer @Inject()(implicit config: Config,
                           materializer: ActorMaterializer) extends LazyLogging {
 
   implicit val executor: ExecutionContext = akka.dispatcher
-  implicit val adRecordWrites: AdRecordWrites = new AdRecordWrites
 
   private val host = config.getString("http.host")
   private val port = config.getInt("http.port")
@@ -28,7 +27,7 @@ class WebServer @Inject()(implicit config: Config,
     pathPrefix("ads") {
       concat(
         path(Remaining) { str =>
-          val seq = AdsRepositoryInMemory.search(str)
+          val seq = AdsRedisRepository.search(str)
           complete(HttpEntity(ContentTypes.`application/json`, Json.toJson(seq).toString()))
         }
       )

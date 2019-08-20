@@ -8,6 +8,8 @@ val akkaVersion = "2.5.23"
 val akkaHttpVersion = "10.1.9"
 
 libraryDependencies ++= Seq(
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
+
   "com.typesafe" % "config" % "1.3.4",
 
   "com.typesafe.play" %% "play-json" % "2.7.4",
@@ -16,6 +18,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
   "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+
+  "redis.clients" % "jedis" % "3.1.0",
 
   "com.google.inject" % "guice" % "4.2.2",
 

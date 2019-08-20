@@ -1,16 +1,26 @@
 package com.viliamov.adscrawler.service
 
-import akka.actor.{Actor, ActorLogging}
-import com.viliamov.adscrawler.dao.AdsRepositoryInMemory
-import com.viliamov.adscrawler.message.ParseAdMessage
+import akka.actor.{Actor, ActorLogging, Props}
+import com.viliamov.adscrawler.dao.AdsRedisRepository
 import com.viliamov.adscrawler.model.{AccountType, AdRecord}
+
+case class ParseAdCommand(publisherName: String, raw: String)
+
+object AdRecordParserActor {
+  val props: Props = Props[AdRecordParserActor]
+}
 
 class AdRecordParserActor extends Actor with ActorLogging {
 
   override def receive: Receive = {
-    case ParseAdMessage(name, raw) =>
+    case ParseAdCommand(name, raw) =>
       val res: Seq[AdRecord] = process(name, raw)
-      AdsRepositoryInMemory.put(name, res)
+
+      processResult(name, res)
+  }
+
+  def processResult(publisherName: String, res: Seq[AdRecord]): Unit = {
+    AdsRedisRepository.put(publisherName, res)
   }
 
   def process(publisherName: String, raw: String): Seq[AdRecord] = {

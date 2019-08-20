@@ -6,11 +6,16 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import com.google.common.net.HttpHeaders
-import com.viliamov.adscrawler.message.{ParseAdMessage, StartCrawlingMessage}
 
 import scala.compat.java8.OptionConverters._
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
+
+case class StartCrawlingCommand(publisherName: String, uri: Uri)
+
+object UriCallActor {
+  val props: Props = Props[UriCallActor]
+}
 
 class UriCallActor extends Actor with ActorLogging {
   final implicit val system: ActorSystem = context.system
@@ -20,12 +25,12 @@ class UriCallActor extends Actor with ActorLogging {
   val http: HttpExt = Http(context.system)
 
   override def receive: Receive = {
-    case StartCrawlingMessage(name, uri) => httpCall(name, uri)
+    case StartCrawlingCommand(name, uri) => httpCall(name, uri)
   }
 
   def httpCall(publisherName: String, uri: Uri): Unit = {
     val request = HttpRequest(uri = uri)
-    log.debug(s"Make Http call to $uri")
+    log.info(s"Make Http call to $uri")
 
     Http()
       .singleRequest(request)
@@ -52,10 +57,10 @@ class UriCallActor extends Actor with ActorLogging {
   }
 
   def processResult(publisherName: String, res: String): Unit = {
-    val name = s"$publisherName-parser"
+    val name = s"parser"
 
-    context.child(name)
-      .getOrElse(context.actorOf(Props[AdRecordParserActor], name = name))
-      .tell(ParseAdMessage(publisherName, res), self)
+    context
+      .child(name).getOrElse(context.actorOf(AdRecordParserActor.props.withDispatcher("parser-dispatcher"), name))
+      .tell(ParseAdCommand(publisherName, res), self)
   }
 }

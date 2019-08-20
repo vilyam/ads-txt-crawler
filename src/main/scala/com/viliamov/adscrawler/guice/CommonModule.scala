@@ -1,4 +1,4 @@
-package com.viliamov.adscrawler
+package com.viliamov.adscrawler.guice
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
