@@ -1,7 +1,7 @@
 package com.viliamov.adscrawler.model
 
 import com.viliamov.adscrawler.model
-import play.api.libs.json.{Format, Json, Reads, Writes}
+import play.api.libs.json.{Format, Json, Reads}
 
 object AccountType extends Enumeration {
   type AccountType = Value

@@ -7,17 +7,18 @@ import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import com.viliamov.adscrawler.actor.{StartCrawlingCommand, UriCallActor}
-import javax.inject.Inject
+import com.viliamov.adscrawler.actor.StartCrawlingCommand
+import javax.inject.{Inject, Named}
 
 import scala.collection.parallel.ParSeq
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
 class CrawlerService @Inject()(implicit
                                config: Config,
                                uriSourceService: UrlSourceService,
                                akka: ActorSystem,
+                               @Named("supervisor") supervisor: ActorRef,
                                materializer: ActorMaterializer) extends LazyLogging {
 
   implicit val executor: ExecutionContext = akka.dispatcher
@@ -38,20 +39,8 @@ class CrawlerService @Inject()(implicit
     ParSeq(uriSourceService.getUris)
       .foreach(seq =>
         seq.foreach(uri => {
-          val message = StartCrawlingCommand(getPublisherName(uri), uri)
-
-          getOrCreateUriCallActor(uri).foreach(actor => actor ! message)
+          supervisor ! StartCrawlingCommand(getPublisherName(uri), uri)
         }))
-  }
-
-  def getOrCreateUriCallActor(uri: Uri): Future[ActorRef] = {
-    val name = s"${uri.authority.host}-caller"
-
-    akka.actorSelection(s"user/$name")
-      .resolveOne(Duration(1, TimeUnit.SECONDS))
-      .recover { case _: Exception =>
-        akka.actorOf(UriCallActor.props, name)
-      }
   }
 
   def getPublisherName(uri: Uri): String = uri.authority.host.address()
