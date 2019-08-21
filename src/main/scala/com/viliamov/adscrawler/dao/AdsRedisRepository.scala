@@ -12,7 +12,7 @@ import redis.clients.jedis.JedisPoolConfig
 import scala.jdk.CollectionConverters._
 
 @Singleton
-object AdsRedisRepository {
+object AdsRedisRepository extends AdsRepository {
 
   private val pool = getPool
 
@@ -31,7 +31,7 @@ object AdsRedisRepository {
         .toSeq
     }
 
-  def put(publisherName: String, records: Seq[AdRecord]): Unit = {
+  override def put(publisherName: String, records: Seq[AdRecord]): Unit = {
     val seq = records.map(r => Json.toJson(r).toString())
 
     autoClose(pool.getResource) { conn =>

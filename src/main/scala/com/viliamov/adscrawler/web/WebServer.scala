@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import com.viliamov.adscrawler.dao.AdsRedisRepository
+import com.viliamov.adscrawler.dao.AdsInMemoryRepository
 import com.viliamov.adscrawler.model.AdRecordFormat._
 import javax.inject.Inject
 import play.api.libs.json.Json
@@ -28,7 +28,7 @@ class WebServer @Inject()(implicit config: Config,
     pathPrefix("ads") {
       concat(
         path(Remaining) { str =>
-          val seq = AdsRedisRepository.search(str)
+          val seq = AdsInMemoryRepository.search(str)
           complete(HttpEntity(ContentTypes.`application/json`, Json.toJson(seq).toString()))
         }
       )
@@ -37,5 +37,5 @@ class WebServer @Inject()(implicit config: Config,
 
   Http().bindAndHandle(route, host, port)
 
-  logger.info(s"Started. You could search Ads at http://$host:$port/ads/*publisher" )
+  logger.info(s"Started. You could search Ads at http://$host:$port/ads/*publisher")
 }

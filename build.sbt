@@ -1,8 +1,26 @@
-name := "ads-txt-crawler"
+import sbt.Keys.{mainClass, packageBin}
 
-version := "0.1"
+lazy val commonSettings = Seq(
+  name := "ads-txt-crawler",
+  version := "0.1",
+  organization := "com.viliamov",
+  scalaVersion := "2.13.0",
+  test in assembly := {}
+)
 
-scalaVersion := "2.13.0"
+lazy val app = (project in file(".")).
+  settings(commonSettings: _*).
+  settings(
+    skip in publish := true
+  )
+  .enablePlugins(JavaServerAppPackaging)
+  .enablePlugins(AssemblyPlugin)
+
+lazy val cosmetic = project
+  .settings(
+    name := "shaded-something",
+    packageBin in Compile := (assembly in(app, Compile)).value
+  )
 
 val akkaVersion = "2.5.23"
 val akkaHttpVersion = "10.1.9"
@@ -33,4 +51,4 @@ libraryDependencies ++= Seq(
 
 herokuAppName in Compile := "ads-txt-crawler"
 
-enablePlugins(JavaServerAppPackaging)
+

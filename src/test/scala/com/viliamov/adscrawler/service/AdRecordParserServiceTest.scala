@@ -1,14 +1,12 @@
 package com.viliamov.adscrawler.service
 
 import com.google.inject.{Guice, Injector}
-import com.viliamov.adscrawler.CommonModule
-import com.viliamov.adscrawler.dao.DaoModule
+import com.viliamov.adscrawler.actor.AdRecordParserActor
+import com.viliamov.adscrawler.guice.{CommonModule, ParserModule}
 import org.scalatest.{FunSuite, GivenWhenThen, PrivateMethodTester}
 
 class AdRecordParserServiceTest extends FunSuite with GivenWhenThen with PrivateMethodTester {
-  val injector: Injector = Guice.createInjector(new CommonModule(), new ParserModule(), new DaoModule)
-
-  val service: AdRecordParserService = injector.getInstance(classOf[AdRecordParserService])
+  val injector: Injector = Guice.createInjector(new CommonModule(), new ParserModule())
 
   test("prepare") {
     Given("the raw ads list")
@@ -24,7 +22,7 @@ class AdRecordParserServiceTest extends FunSuite with GivenWhenThen with Private
          c.amazon-adsystem.com,     3159,     DIRECT     # banner, video"""
 
     When("the Set of records is prepared")
-    val seq = service.prepare(raw)
+    val seq = AdRecordParserActor.prepare(raw)
 
     val actual = seq.mkString("\n")
 
@@ -47,7 +45,7 @@ class AdRecordParserServiceTest extends FunSuite with GivenWhenThen with Private
       "xdfhsdfh")
 
     When("the Set of lines is parsed")
-    val parsed = seq.map(service.parseLine)
+    val parsed = seq.map(AdRecordParserActor.parseLine)
 
     Then("the Set should contains Right Value")
     assert(parsed.exists(_.isRight))
