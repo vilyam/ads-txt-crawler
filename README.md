@@ -11,8 +11,8 @@ https://ads-txt-crawler.herokuapp.com/ads/nytimes  <br/>
 
 This is the version with Akka parallel approach for getting URL resources and processing responses.
 
-to run app:
-`$ sbt clean assembly`
-`$ java -jar target/scala-2.13/ads-txt-crawler-assembly-0.1.jar `
-or 
+to run app:<br/>
+`$ sbt clean assembly`<br/>
+`$ java -jar target/scala-2.13/ads-txt-crawler-assembly-0.1.jar `<br/>
+or <br/>
 `$ sbt run`
