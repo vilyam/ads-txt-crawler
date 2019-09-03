@@ -1,8 +1,6 @@
-Simple ads.txt crawler. 
+Simple ads.txt crawler using Scala and Akka. 
 
 Implemented specification: https://iabtechlab.com/~iabtec5/wp-content/uploads/2016/07/IABOpenRTBAds.txtSpecification_Version1_Final.pdf
-
-Application deployed to Heroku: https://ads-txt-crawler.herokuapp.com/
 
 examples: <br/>
 https://ads-txt-crawler.herokuapp.com/ads/cnn <br/>
